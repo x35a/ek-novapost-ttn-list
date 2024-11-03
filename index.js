@@ -1,5 +1,14 @@
 const http = require("http");
 
+/* fixme If afterpayment assigned by mistake and then it's removed after shipping - ttn is still present in the list. 
+Probably np gets outdated ttn data from the point when it was created but not changed.
+So if afterpayment assigns after shipping it won't get into the list - that's also bug.
+*/
+
+// todo Exclude small departments
+
+// fixme If ttn create date is less then DateTimeFrom, then ttn won't show up in the list.
+
 // request props
 // https://developers.novaposhta.ua/view/model/a90d323c-8512-11ec-8ced-005056b2dbe1/method/a9d22b34-8512-11ec-8ced-005056b2dbe1
 const url = "https://api.novaposhta.ua/v2.0/json/"; // entry https://developers.novaposhta.ua/documentation

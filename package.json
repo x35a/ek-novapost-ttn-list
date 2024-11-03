@@ -5,7 +5,8 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "todo": "npx leasot -x --reporter markdown 'index.js' > backlog.md"
   },
   "keywords": [],
   "author": "Ives van Hoorne",
