@@ -28,7 +28,7 @@ const data = {
   },
 };
 
-const excludeList = [];
+const excludeList = ['20451026879542'];
 
 //create a server object:
 http
