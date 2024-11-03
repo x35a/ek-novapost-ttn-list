@@ -3,9 +3,12 @@ const http = require("http");
 /* fixme If afterpayment assigned by mistake and then it's removed after shipping - ttn is still present in the list. 
 Probably np gets outdated ttn data from the point when it was created but not changed.
 So if afterpayment assigns after shipping it won't get into the list - that's also bug.
+fix - request each ttn data using TrackingDocument model, it returns updated data.
+-- it could be 50 requests each time instead of 1, i don't like it.
+https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
 */
 
-// todo Exclude small departments
+// todo Exclude small departments (delayed afterpayment)
 
 /* Bug: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
 It has already happened.
@@ -28,7 +31,7 @@ const data = {
   },
 };
 
-const excludeList = ['20451026879542'];
+const excludeList = ["20451026879542"];
 
 //create a server object:
 http
