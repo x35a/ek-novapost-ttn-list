@@ -7,7 +7,11 @@ So if afterpayment assigns after shipping it won't get into the list - that's al
 
 // todo Exclude small departments
 
-// fixme If ttn create date is less then DateTimeFrom, then ttn won't show up in the list.
+/* Bug: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
+It has already happened.
+Workaround - to increase DateTimeFrom-DateTimeTo request range.
+But still there are some ttns that out of the request range, no solid fix for now. 
+*/
 
 // request props
 // https://developers.novaposhta.ua/view/model/a90d323c-8512-11ec-8ced-005056b2dbe1/method/a9d22b34-8512-11ec-8ced-005056b2dbe1
@@ -18,7 +22,7 @@ const data = {
   modelName: "InternetDocumentGeneral",
   calledMethod: "getDocumentList", // get CREATED ttns in date range
   methodProperties: {
-    DateTimeFrom: formatDate(getDaysBackDate(7)),
+    DateTimeFrom: formatDate(getDaysBackDate(15)),
     DateTimeTo: formatDate(getDaysBackDate(0)),
     GetFullList: "1",
   },
