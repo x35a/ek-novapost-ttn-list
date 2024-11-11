@@ -7,7 +7,6 @@ fix - request each ttn data using TrackingDocument model, it returns updated dat
 -- it could be 50 requests each time instead of 1, i don't like it.
 https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
 */
-
 // todo Exclude small departments (delayed afterpayment)
 
 /* Bug: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
@@ -15,6 +14,9 @@ It has already happened.
 Workaround - to increase DateTimeFrom-DateTimeTo request range.
 But still there are some ttns that out of the request range, no solid fix for now. 
 */
+
+/*fixme ttn list is outdated sometimes even after page update. nodedemon restart helps.*/
+/* todo add try catch fetch */
 
 // request props
 // https://developers.novaposhta.ua/view/model/a90d323c-8512-11ec-8ced-005056b2dbe1/method/a9d22b34-8512-11ec-8ced-005056b2dbe1
@@ -61,6 +63,7 @@ async function fetchTTNList(url, data) {
   let resultString = "";
 
   for (const item of result.data) {
+    // if (item.IntDocNumber === "20451035971808") console.log(item);
     if (+item.AfterpaymentOnGoodsCost === 0) continue; // skip prepays
     if (![9, 10, 11].includes(item.StateId)) continue; // proceed received states only
     // state numbers https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
