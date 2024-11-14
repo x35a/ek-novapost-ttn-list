@@ -1,5 +1,10 @@
 const http = require("http");
 
+/* fixme: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
+It has already happened.
+Workaround - to increase DateTimeFrom-DateTimeTo request range.
+But still there are some ttns that out of the request range, no solid fix for now. 
+*/
 /* fixme If afterpayment assigned by mistake and then it's removed after shipping - ttn is still present in the list. 
 Probably np gets outdated ttn data from the point when it was created but not changed.
 So if afterpayment assigns after shipping it won't get into the list - that's also bug.
@@ -8,15 +13,6 @@ fix - request each ttn data using TrackingDocument model, it returns updated dat
 https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
 */
 // todo Exclude small departments (delayed afterpayment)
-
-/* Bug: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
-It has already happened.
-Workaround - to increase DateTimeFrom-DateTimeTo request range.
-But still there are some ttns that out of the request range, no solid fix for now. 
-*/
-
-/*fixme ttn list is outdated sometimes even after page update. nodedemon restart helps.*/
-/* todo add try catch fetch */
 
 // request props
 // https://developers.novaposhta.ua/view/model/a90d323c-8512-11ec-8ced-005056b2dbe1/method/a9d22b34-8512-11ec-8ced-005056b2dbe1
@@ -38,43 +34,63 @@ const excludeList = ["20451026879542", "20451032573965"];
 //create a server object:
 http
   .createServer(async function (req, res) {
-    res.write("LOADING DATA...\n");
-    const ttnList = await fetchTTNList(url, data);
-    res.write("LOADED\n\n");
-    res.write(ttnList); //write a response to the client
-    res.end(); //end the response
+    try {
+      res.write("LOADING DATA...\n");
+
+      // Try to fetch the TTN list
+      const ttnList = await fetchTTNList(url, data);
+      res.write("LOADED\n\n");
+      res.write(ttnList); // Write a response to the client
+    } catch (error) {
+      // Handle errors and send a meaningful response
+      res.write("ERROR LOADING DATA:\n");
+      res.write(error.message);
+    } finally {
+      res.end(); // End the response in all cases
+    }
   })
-  .listen(8080); //the server object listens on port 8080
+  .listen(8080); // the server object listens on port 8080
 
 async function fetchTTNList(url, data) {
-  const response = await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-  const result = await response.json();
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
 
-  // sort result by date
-  result.data.sort(
-    (a, b) => new Date(b.RecipientDateTime) - new Date(a.RecipientDateTime)
-  );
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response was successful
+    }
 
-  const removeTime = (dateString) => dateString.split(" ")[0];
+    const result = await response.json();
 
-  let resultString = "";
+    // Sort result by date
+    result.data.sort(
+      (a, b) => new Date(b.RecipientDateTime) - new Date(a.RecipientDateTime)
+    );
 
-  for (const item of result.data) {
-    // if (item.IntDocNumber === "20451035971808") console.log(item);
-    if (+item.AfterpaymentOnGoodsCost === 0) continue; // skip prepays
-    if (![9, 10, 11].includes(item.StateId)) continue; // proceed received states only
-    // state numbers https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
-    if (excludeList.includes(item.IntDocNumber)) continue; // skip excludes
+    const removeTime = (dateString) => dateString.split(" ")[0];
 
-    resultString += `${removeTime(item.RecipientDateTime)} - ${
-      item.AfterpaymentOnGoodsCost
-    } - ${item.IntDocNumber}\n`;
+    let resultString = "";
+
+    for (const item of result.data) {
+      // if (item.IntDocNumber === "20451035971808") console.log(item);
+      if (+item.AfterpaymentOnGoodsCost === 0) continue; // skip prepays
+      if (![9, 10, 11].includes(item.StateId)) continue; // proceed received states only
+      // state numbers https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
+      if (excludeList.includes(item.IntDocNumber)) continue; // skip excludes
+
+      resultString += `${removeTime(item.RecipientDateTime)} - ${
+        item.AfterpaymentOnGoodsCost
+      } - ${item.IntDocNumber}\n`;
+    }
+
+    return resultString;
+  } catch (error) {
+    // Handle fetch or processing errors
+    console.error("Error in fetchTTNList:", error);
+    throw new Error("Failed to load TTN list data."); // Re-throw the error to be handled by the server
   }
-
-  return resultString;
 }
 
 function getDaysBackDate(daysBack) {
