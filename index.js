@@ -84,16 +84,16 @@ async function fetchTTNList(url, data) {
       if (![9, 10, 11].includes(item.StateId)) continue; // proceed received states only
       if (excludeList.includes(item.IntDocNumber)) continue; // skip excludes
 
-      const afterPayment =
-        +item.AfterpaymentOnGoodsCost ||
-        +item.BackwardDeliverySum ||
-        +item.BackwardDeliveryMoney;
+      const afterPayment = +item.AfterpaymentOnGoodsCost;
 
-      if (!afterPayment) continue; // skip no afterpayment
+      const backwardDelivery =
+        +item.BackwardDeliverySum || +item.BackwardDeliveryMoney;
 
-      resultString += `${removeTime(
-        item.RecipientDateTime
-      )} - ${afterPayment} - ${item.IntDocNumber}\n`;
+      if (!afterPayment && !backwardDelivery) continue; // skip no afterpayment
+
+      resultString += `${removeTime(item.RecipientDateTime)} - ${
+        afterPayment || `${backwardDelivery} cash`
+      } - ${item.IntDocNumber}\n`;
     }
 
     return resultString;
