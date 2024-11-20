@@ -75,9 +75,15 @@ async function fetchTTNList(url, data) {
 
     for (const item of result.data) {
       // if (item.IntDocNumber === "20451035971808") console.log(item);
+
+      // AfterpaymentOnGoodsCost // payment control
+      // Redelivery // cash delivery (to the office) status
+      // RedeliverySum // cash delivery sum
+      // LastAmountTransferGM // current cash delivery sum
+      // StateId https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
+
       if (+item.AfterpaymentOnGoodsCost === 0) continue; // skip prepays
       if (![9, 10, 11].includes(item.StateId)) continue; // proceed received states only
-      // state numbers https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
       if (excludeList.includes(item.IntDocNumber)) continue; // skip excludes
 
       resultString += `${removeTime(item.RecipientDateTime)} - ${
