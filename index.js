@@ -74,21 +74,26 @@ async function fetchTTNList(url, data) {
     let resultString = "";
 
     for (const item of result.data) {
-      // if (item.IntDocNumber === "20451035971808") console.log(item);
+      //if (item.IntDocNumber === "20451041678671") console.log(item);
 
-      // AfterpaymentOnGoodsCost // payment control
-      // Redelivery // cash delivery (to the office) status
-      // RedeliverySum // cash delivery sum
-      // LastAmountTransferGM // current cash delivery sum
+      // AfterpaymentOnGoodsCost // string value. payment sum to fop.
+      // BackwardDeliverySum // string value. cash delivery to the office.
+      // BackwardDeliveryMoney // number value. the same value as BackwardDeliverySum. diff to BackwardDeliverySum is unknown.
       // StateId https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
 
-      if (+item.AfterpaymentOnGoodsCost === 0) continue; // skip prepays
       if (![9, 10, 11].includes(item.StateId)) continue; // proceed received states only
       if (excludeList.includes(item.IntDocNumber)) continue; // skip excludes
 
-      resultString += `${removeTime(item.RecipientDateTime)} - ${
-        item.AfterpaymentOnGoodsCost
-      } - ${item.IntDocNumber}\n`;
+      const afterPayment =
+        +item.AfterpaymentOnGoodsCost ||
+        +item.BackwardDeliverySum ||
+        +item.BackwardDeliveryMoney;
+
+      if (!afterPayment) continue; // skip no afterpayment
+
+      resultString += `${removeTime(
+        item.RecipientDateTime
+      )} - ${afterPayment} - ${item.IntDocNumber}\n`;
     }
 
     return resultString;
