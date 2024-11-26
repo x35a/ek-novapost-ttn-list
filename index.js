@@ -93,7 +93,7 @@ async function fetchTTNList(url, data) {
 
       resultString += `${removeTime(item.RecipientDateTime)} - ${
         afterPayment || `${backwardDelivery} cash`
-      } - ${item.IntDocNumber}\n`;
+      }${/Пункт приймання-видачі/i.test(item.RecipientAddressDescription) ? ' delay' : ''} - ${item.IntDocNumber}\n`;
     }
 
     return resultString;
