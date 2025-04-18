@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "todo": "npx leasot -x --reporter markdown 'index.js' > backlog.md"
+    "todo": "npx leasot -x --reporter markdown 'index.js' > backlog.md",
+    "nodemon": "nodemon index.js"
   },
   "keywords": [],
   "author": "Ives van Hoorne",
