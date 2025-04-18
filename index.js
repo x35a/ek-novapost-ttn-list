@@ -55,12 +55,12 @@ app.get('/events', async (req, res) => {
 
   try {
     // Send initial loading message
-    res.write('data: LOADING DATA...<br>\n\n');
+    res.write('data: LOADING DATA...<br><br>\n\n');
 
     // Try to fetch the TTN list
     const ttnList = await fetchTTNList(url, data);
     // Send the loaded data
-    res.write(`data: LOADED<br><br>${ttnList.replace(/\n/g, '<br>')}\n\n`);
+    res.write(`data: ${ttnList.replace(/\n/g, '<br>')}\n\n`);
   } catch (error) {
     // Handle errors and send a meaningful response
     res.write(`data: ERROR LOADING DATA:<br>${error.message}\n\n`);
