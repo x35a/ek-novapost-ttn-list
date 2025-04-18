@@ -49,7 +49,7 @@ http
       res.end(); // End the response in all cases
     }
   })
-  .listen(process.env.PORT || 3000); // 3000 for flyio. the server object listens on port 8080 before
+  .listen(process.env.PORT || 8080); // the server object listens on port 8080 before
 
 async function fetchTTNList(url, data) {
   try {
