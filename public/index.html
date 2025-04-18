@@ -4,14 +4,32 @@
     <title>TTN List</title>
 </head>
 <body>
+    <div id="loader">LOADING DATA.</div>
     <div id="output"></div>
 
     <script>
         const output = document.getElementById('output');
+        const loader = document.getElementById('loader');
         let eventSource;
+        let loadingInterval;
+
+        // Simple loading animation
+        function startLoading() {
+            let dots = 1;
+            loadingInterval = setInterval(() => {
+                loader.textContent = 'LOADING DATA' + '.'.repeat(dots);
+                dots = dots > 3 ? 1 : dots + 1;
+            }, 500);
+        }
+
+        function stopLoading() {
+            clearInterval(loadingInterval);
+            loader.style.display = 'none';
+        }
 
         function connectSSE() {
             eventSource = new EventSource('/events');
+            startLoading();
 
             eventSource.onmessage = function(event) {
                 output.innerHTML += event.data;
@@ -21,11 +39,13 @@
             eventSource.addEventListener('complete', function(event) {
                 console.log('Data transfer complete, closing connection');
                 eventSource.close();
+                stopLoading();
             });
 
             eventSource.onerror = function(error) {
                 if (eventSource.readyState === EventSource.CLOSED) {
                     console.log('Connection closed by server');
+                    stopLoading();
                 }
             };
         }

@@ -54,9 +54,6 @@ app.get('/events', async (req, res) => {
   });
 
   try {
-    // Send initial loading message
-    res.write('data: LOADING DATA...<br><br>\n\n');
-
     // Try to fetch the TTN list
     const ttnList = await fetchTTNList(url, data);
     // Send the loaded data
@@ -80,7 +77,7 @@ app.listen(PORT, () => {
 async function fetchTTNList(url, data) {
   try {
     // Add 3 seconds delay for testing
-    // await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     const response = await fetch(url, {
       method: "POST",
