@@ -1,5 +1,6 @@
 require('dotenv').config();
-const http = require("http");
+const express = require('express');
+const app = express();
 
 /* fixme: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
 It has already happened.
@@ -32,25 +33,23 @@ const data = {
 
 const excludeList = ["20451026879542", "20451032573965"];
 
-//create a server object:
-http
-  .createServer(async function (req, res) {
-    try {
-      res.write("LOADING DATA...\n");
+// Express route handler
+app.get('/', async (req, res) => {
+  try {
+    // Try to fetch the TTN list
+    const ttnList = await fetchTTNList(url, data);
+    res.send(`LOADING DATA...\nLOADED\n\n${ttnList}`);
+  } catch (error) {
+    // Handle errors and send a meaningful response
+    res.status(500).send(`ERROR LOADING DATA:\n${error.message}`);
+  }
+});
 
-      // Try to fetch the TTN list
-      const ttnList = await fetchTTNList(url, data);
-      res.write("LOADED\n\n");
-      res.write(ttnList); // Write a response to the client
-    } catch (error) {
-      // Handle errors and send a meaningful response
-      res.write("ERROR LOADING DATA:\n");
-      res.write(error.message);
-    } finally {
-      res.end(); // End the response in all cases
-    }
-  })
-  .listen(process.env.PORT || 8080); // the server object listens on port 8080 before
+// Start the server
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 async function fetchTTNList(url, data) {
   try {
