@@ -1,3 +1,4 @@
+require('dotenv').config();
 const http = require("http");
 
 /* fixme: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
