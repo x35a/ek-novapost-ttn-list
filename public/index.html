@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TTN List</title>
+</head>
+<body>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        let eventSource;
+
+        function connectSSE() {
+            eventSource = new EventSource('/events');
+
+            eventSource.onmessage = function(event) {
+                output.innerHTML += event.data;
+            };
+
+            // Listen for the complete event
+            eventSource.addEventListener('complete', function(event) {
+                console.log('Data transfer complete, closing connection');
+                eventSource.close();
+            });
+
+            eventSource.onerror = function(error) {
+                if (eventSource.readyState === EventSource.CLOSED) {
+                    console.log('Connection closed by server');
+                }
+            };
+        }
+
+        connectSSE();
+    </script>
+</body>
+</html> 

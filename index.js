@@ -2,6 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
+// Serve static files from the public directory
+app.use(express.static('public'));
+
+// Serve the HTML page at root
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 /* fixme: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
 It has already happened.
 Workaround - to increase DateTimeFrom-DateTimeTo request range.
@@ -33,15 +41,33 @@ const data = {
 
 const excludeList = ["20451026879542", "20451032573965"];
 
-// Express route handler
-app.get('/', async (req, res) => {
+// SSE endpoint for TTN data
+app.get('/events', async (req, res) => {
+  // Set headers for SSE
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  // Handle client disconnect
+  req.on('close', () => {
+    console.log('Client closed connection');
+  });
+
   try {
+    // Send initial loading message
+    res.write('data: LOADING DATA...<br>\n\n');
+
     // Try to fetch the TTN list
     const ttnList = await fetchTTNList(url, data);
-    res.send(`LOADING DATA...<br>LOADED<br><br>${ttnList.replace(/\n/g, '<br>')}`);
+    // Send the loaded data
+    res.write(`data: LOADED<br><br>${ttnList.replace(/\n/g, '<br>')}\n\n`);
   } catch (error) {
     // Handle errors and send a meaningful response
-    res.status(500).send(`ERROR LOADING DATA:<br>${error.message}`);
+    res.write(`data: ERROR LOADING DATA:<br>${error.message}\n\n`);
+  } finally {
+    // Send a completion event before closing
+    res.write('event: complete\ndata: done\n\n');
+    res.end();
   }
 });
 
@@ -53,6 +79,9 @@ app.listen(PORT, () => {
 
 async function fetchTTNList(url, data) {
   try {
+    // Add 3 seconds delay for testing
+    // await new Promise(resolve => setTimeout(resolve, 3000));
+
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify(data),
