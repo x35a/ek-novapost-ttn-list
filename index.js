@@ -38,10 +38,10 @@ app.get('/', async (req, res) => {
   try {
     // Try to fetch the TTN list
     const ttnList = await fetchTTNList(url, data);
-    res.send(`LOADING DATA...\nLOADED\n\n${ttnList}`);
+    res.send(`LOADING DATA...<br>LOADED<br><br>${ttnList.replace(/\n/g, '<br>')}`);
   } catch (error) {
     // Handle errors and send a meaningful response
-    res.status(500).send(`ERROR LOADING DATA:\n${error.message}`);
+    res.status(500).send(`ERROR LOADING DATA:<br>${error.message}`);
   }
 });
 
