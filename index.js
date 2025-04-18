@@ -77,7 +77,7 @@ app.listen(PORT, () => {
 async function fetchTTNList(url, data) {
   try {
     // Add 3 seconds delay for testing
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // await new Promise(resolve => setTimeout(resolve, 3000));
 
     const response = await fetch(url, {
       method: "POST",
