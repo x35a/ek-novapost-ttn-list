@@ -1,3 +1,25 @@
+/* fixme: If ttn creation date is less then data.DateTimeFrom, then ttn won't show up in the list.
+It has already happened.
+Workaround - to increase DateTimeFrom-DateTimeTo request range.
+But still there are some ttns that out of the request range, no solid fix for now. 
+*/
+
+/* fixme If afterpayment assigned by mistake and then it's removed after shipping - ttn is still present in the list. 
+Probably np gets outdated ttn data from the point when it was created but not changed.
+So if afterpayment assigns after shipping it won't get into the list - that's also bug.
+fix - request each ttn data using TrackingDocument model, it returns updated data.
+-- it could be 50 requests each time instead of 1, i don't like it.
+https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
+*/
+
+// todo Exclude small departments (delayed afterpayment)
+
+// request props
+// https://developers.novaposhta.ua/view/model/a90d323c-8512-11ec-8ced-005056b2dbe1/method/a9d22b34-8512-11ec-8ced-005056b2dbe1
+// entry https://developers.novaposhta.ua/documentation
+
+
+
 require('dotenv').config();
 
 // API Constants
@@ -56,6 +78,13 @@ async function fetchTTNList(url = API_URL, data = createRequestData()) {
     let resultString = "";
 
     for (const item of result.data) {
+      //if (item.IntDocNumber === "20451041678671") console.log(item);
+
+      // AfterpaymentOnGoodsCost // string value. payment sum to fop.
+      // BackwardDeliverySum // string value. cash delivery to the office.
+      // BackwardDeliveryMoney // number value. the same value as BackwardDeliverySum. diff to BackwardDeliverySum is unknown.
+      // StateId https://developers.novaposhta.ua/view/model/a99d2f28-8512-11ec-8ced-005056b2dbe1/method/a9ae7bc9-8512-11ec-8ced-005056b2dbe1
+
       if (![9, 10, 11].includes(item.StateId)) continue; // proceed received states only
       if (EXCLUDE_LIST.includes(item.IntDocNumber)) continue; // skip excludes
 
