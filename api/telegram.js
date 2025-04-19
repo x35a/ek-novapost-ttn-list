@@ -6,6 +6,9 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { webHook: true });
 
 export async function POST(request) {
   try {
+    // Log request details
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()));
+    console.log('Request URL:', request.url);
     // Validate that the request is from Telegram by checking headers
     const telegramToken = request.headers.get('x-telegram-bot-api-secret-token');
     
@@ -46,6 +49,12 @@ export async function DELETE(request) {
 
 export async function GET(request) {
   try {
+    // Log environment info
+    console.log('Environment variables:', {
+      VERCEL_URL: process.env.VERCEL_URL,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      NODE_ENV: process.env.NODE_ENV
+    });
     // Get the current webhook info first
     const currentInfo = await bot.getWebHookInfo();
     console.log('Current webhook info:', currentInfo);
