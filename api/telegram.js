@@ -55,6 +55,7 @@ export async function GET(request) {
       VERCEL_ENV: process.env.VERCEL_ENV,
       NODE_ENV: process.env.NODE_ENV
     });
+
     // Get the current webhook info first
     const currentInfo = await bot.getWebHookInfo();
     console.log('Current webhook info:', currentInfo);
@@ -63,9 +64,8 @@ export async function GET(request) {
     await bot.deleteWebHook();
     console.log('Deleted existing webhook');
 
-    // Set up the new webhook
-    const baseUrl = process.env.VERCEL_URL.replace(/^https?:\/\//, '').trim();
-    const webhookUrl = `https://${baseUrl}/api/telegram`;
+    // Always use the production URL for webhook
+    const webhookUrl = 'https://ek-novapost-ttn-list.vercel.app/api/telegram';
     const options = {
       max_connections: 100,
       drop_pending_updates: true
@@ -73,7 +73,7 @@ export async function GET(request) {
     console.log('Setting webhook to:', webhookUrl);
     const info = await bot.setWebHook(webhookUrl, options);
     console.log('Webhook setup response:', info);
-    // Store the secret token somewhere secure or display it (for testing)
+    
     return new Response(`Webhook set to ${webhookUrl}\nSetup response: ${JSON.stringify(info)}`, { status: 200 });
   } catch (error) {
     console.error('Error setting webhook:', error);
