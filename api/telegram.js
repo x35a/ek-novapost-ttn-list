@@ -42,9 +42,13 @@ export async function DELETE(request) {
 
 export async function GET(request) {
   try {
-    const webhookUrl = `${process.env.VERCEL_URL}/api/telegram`;
+    // Ensure the URL has https:// prefix
+    const baseUrl = process.env.VERCEL_URL.replace(/^https?:\/\//, '').trim();
+    const webhookUrl = `https://${baseUrl}/api/telegram`;
     // We don't need a secret token for now since Telegram verifies using HTTPS
-    const options = {};
+    const options = {
+      max_connections: 100
+    };
     console.log('Setting webhook to:', webhookUrl);
     const info = await bot.setWebHook(webhookUrl, options);
     console.log('Webhook setup response:', info);
