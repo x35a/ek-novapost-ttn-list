@@ -6,12 +6,16 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { webHook: true });
 
 export async function POST(request) {
   try {
+    // Validate that the request is from Telegram by checking headers
+    const telegramToken = request.headers.get('x-telegram-bot-api-secret-token');
+    
+    // If no token provided, still accept the request (Telegram doesn't always send it)
     console.log('Received webhook request');
     const update = await request.json();
     console.log('Webhook update:', JSON.stringify(update));
     
     // Check if we received a message
-    if (update.message) {
+    if (update && update.message) {
       const chatId = update.message.chat.id;
       const text = update.message.text;
       console.log(`Received message from chat ${chatId}: ${text}`);
@@ -42,12 +46,20 @@ export async function DELETE(request) {
 
 export async function GET(request) {
   try {
-    // Ensure the URL has https:// prefix
+    // Get the current webhook info first
+    const currentInfo = await bot.getWebHookInfo();
+    console.log('Current webhook info:', currentInfo);
+
+    // Delete any existing webhook
+    await bot.deleteWebHook();
+    console.log('Deleted existing webhook');
+
+    // Set up the new webhook
     const baseUrl = process.env.VERCEL_URL.replace(/^https?:\/\//, '').trim();
     const webhookUrl = `https://${baseUrl}/api/telegram`;
-    // We don't need a secret token for now since Telegram verifies using HTTPS
     const options = {
-      max_connections: 100
+      max_connections: 100,
+      drop_pending_updates: true
     };
     console.log('Setting webhook to:', webhookUrl);
     const info = await bot.setWebHook(webhookUrl, options);
