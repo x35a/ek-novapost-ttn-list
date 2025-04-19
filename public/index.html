@@ -36,6 +36,13 @@
                 output.innerHTML += event.data;
             };
 
+            // Handle error events
+            eventSource.addEventListener('error', function(event) {
+                output.innerHTML = `<div style="color: red">${event.data}</div>`;
+                eventSource.close();
+                stopLoading();
+            });
+
             // Listen for the complete event
             eventSource.addEventListener('complete', function(event) {
                 console.log('Data transfer complete, closing connection');

@@ -30,7 +30,7 @@ app.get('/events', async (req, res) => {
     res.write(`data: ${ttnList.replace(/\n/g, '<br>')}\n\n`);
   } catch (error) {
     // Handle errors and send a meaningful response
-    res.write(`data: ERROR LOADING DATA:<br>${error.message}\n\n`);
+    res.write(`event: error\ndata: ${error.message}\n\n`);
   } finally {
     // Send a completion event before closing
     res.write('event: complete\ndata: done\n\n');
