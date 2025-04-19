@@ -1,17 +1,8 @@
 // api/telegram.js
 import TelegramBot from 'node-telegram-bot-api';
-import crypto from 'crypto';
 
 // Initialize bot with webhook mode
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { webHook: true });
-
-// Function to verify Telegram webhook request
-function verifyTelegramWebhook(request, secretToken) {
-  if (!request.headers) return false;
-  
-  const telegramHash = request.headers.get('x-telegram-bot-api-secret-token');
-  return telegramHash === secretToken;
-}
 
 export async function POST(request) {
   try {
@@ -51,12 +42,9 @@ export async function DELETE(request) {
 
 export async function GET(request) {
   try {
-    // Generate a secret token for webhook verification
-    const secretToken = crypto.randomBytes(20).toString('hex');
     const webhookUrl = `${process.env.VERCEL_URL}/api/telegram`;
-    const options = {
-      secret_token: secretToken
-    };
+    // We don't need a secret token for now since Telegram verifies using HTTPS
+    const options = {};
     console.log('Setting webhook to:', webhookUrl);
     const info = await bot.setWebHook(webhookUrl, options);
     console.log('Webhook setup response:', info);
