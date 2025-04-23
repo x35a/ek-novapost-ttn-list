@@ -57,6 +57,9 @@ function createRequestData(daysFrom = 15, daysTo = 0) {
 
 async function fetchTTNList(url = API_URL, data = createRequestData()) {
   try {
+    // Add 3 seconds delay for testing
+    // await new Promise(resolve => setTimeout(resolve, 5000));
+
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify(data),
