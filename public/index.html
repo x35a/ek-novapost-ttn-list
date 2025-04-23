@@ -16,10 +16,12 @@
 
         // Simple loading animation
         function startLoading() {
-            let dots = 1;
+            const loadingText = 'LOADING DATA ';
+            let dots = 0;
+            loader.textContent = loadingText;
             loadingInterval = setInterval(() => {
-                loader.textContent = 'LOADING DATA' + '.'.repeat(dots);
-                dots = dots > 3 ? 1 : dots + 1;
+                dots = dots >= 3 ? 0 : dots + 1;
+                loader.textContent = loadingText + '.'.repeat(dots);
             }, 500);
         }
 
