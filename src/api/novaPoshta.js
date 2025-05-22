@@ -76,7 +76,7 @@ async function fetchTTNList(url = API_URL, data = createRequestData()) {
       (a, b) => new Date(b.RecipientDateTime) - new Date(a.RecipientDateTime)
     );
 
-    const removeTime = (dateString) => dateString.split(" ")[0];
+    const removeTime = (dateString) => dateString ? dateString.split(" ")[0] : '';
 
     let resultString = "";
 
